@@ -122,7 +122,7 @@ All records include:
 - **Vite** for fast build tooling and development server
 - **Tailwind CSS** with custom fonts (DM Sans, JetBrains Mono) for neo-brutalist styling
 - **jsPDF** for PDF certificate generation
-- **Solidity** (HashAnchor.sol) for smart contract-based hash anchoring on Flare
+
 - **ProofRails** for ISO 20022 record generation (PAIN, PACS, CAMT, REMT)
 
 ## Project Structure
@@ -133,8 +133,6 @@ flare/
 │   ├── App.tsx              # Main React component with all pages
 │   ├── main.tsx             # Entry point
 │   └── index.css            # Global styles
-├── contracts/
-│   └── HashAnchor.sol       # Smart contract for hash anchoring
 ├── scripts/
 │   └── deploy.js            # Hardhat deployment script
 ├── index.html               # HTML template
@@ -149,5 +147,4 @@ flare/
 - If the build fails, ensure all dependencies are installed with `npm install`
 - For TypeScript errors, check the `tsconfig.json` configuration
 - If Tailwind styles are not applying, verify the `tailwind.config.js` content paths
-- For smart contract deployment issues, ensure your private key is set in `.env`
 - For ProofRails records generation, verify the transaction data format matches ISO 20022 standards
