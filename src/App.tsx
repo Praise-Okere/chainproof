@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
+import { generateAllProofRailsRecords } from './proofRails';
 
 interface Proof {
   proofId: string;
@@ -60,7 +61,7 @@ function App() {
     }, 2000);
   };
 
-  const downloadProof = (proof: Proof, format: 'json' | 'pdf' = 'json') => {
+  const downloadProof = (proof: Proof, format: 'json' | 'pdf' | 'iso' = 'json') => {
     if (format === 'json') {
       // Enhanced JSON with comprehensive proof data
       const proofBundle = {
@@ -151,6 +152,41 @@ function App() {
       
       // Save the PDF
       doc.save(`chainproof-${proof.proofId}.pdf`);
+    } else if (format === 'iso') {
+      // Generate ISO 20022 compliant records (PAIN, PACS, CAMT, REMT)
+      const isoRecords = generateAllProofRailsRecords({
+        proofId: proof.proofId,
+        txHash: proof.txHash,
+        amount: proof.amount,
+        currency: proof.currency,
+        sender: proof.sender,
+        recipient: proof.recipient,
+        timestamp: proof.timestamp,
+        flareAnchor: proof.flareAnchor,
+        recordHash: proof.recordHash,
+        status: proof.status
+      });
+
+      const isoBundle = {
+        metadata: {
+          generator: "ChainProof",
+          standard: "ISO 20022",
+          version: "1.0.0",
+          generatedAt: new Date().toISOString(),
+          proofId: proof.proofId,
+          network: "Flare Network",
+          anchor: proof.flareAnchor
+        },
+        records: isoRecords
+      };
+
+      const dataStr = JSON.stringify(isoBundle, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+      const exportFileDefaultName = `chainproof-iso-${proof.proofId}.json`;
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
     }
   };
 
@@ -471,6 +507,15 @@ function App() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     DOWNLOAD PDF
+                  </button>
+                  <button
+                    onClick={() => downloadProof(currentProof, 'iso')}
+                    className="w-full bg-blue-900 text-blue-200 py-3 border-2 border-blue-600 font-bold hover:border-[#39ff14] hover:text-[#39ff14] transition-all duration-200 transform hover:scale-105 flex items-center justify-center text-sm"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    ISO 20022 RECORDS
                   </button>
                 </div>
               </div>
